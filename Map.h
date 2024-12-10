@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 
+enum RESULTS {W, L, D};
+
 class Map
 {
 public:
@@ -11,9 +13,14 @@ public:
 	void addChild(Map* child);
 
 	void setWLD(std::vector<int> v);
+
 	void addWin(std::ostream& output);
 	void addLoss(std::ostream& output);
 	void addDraw(std::ostream& output);
+
+	void delWin(std::ostream& output);
+	void delLoss(std::ostream& output);
+	void delDraw(std::ostream& output);
 
 	std::vector<int> getWLD() const;
 	int getWins() const;
@@ -36,4 +43,8 @@ private:
 	int W_ = 0;
 	int L_ = 0;
 	int D_ = 0;
+
+	void addGame(std::ostream& output, const int& result);
+
+	void delGame(std::ostream& output, const int& result);
 };

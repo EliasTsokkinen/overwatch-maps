@@ -23,32 +23,32 @@ void Map::setWLD(std::vector<int> v)
 
 void Map::addWin(std::ostream& output)
 {
-	++W_;
-	output << "Succesfully changed wins for " << getName() << " to "
-		<< getWins() << "!" << std::endl;
-	if (parent_ != nullptr) {
-		parent_->addWin(output);
-	}
+	addGame(output, RESULTS(W));
 }
 
 void Map::addLoss(std::ostream& output)
 {
-	++L_;
-	output << "Succesfully changed losses for " << getName() << " to "
-		<< getLosses() << "!" << std::endl;
-	if (parent_ != nullptr) {
-		parent_->addLoss(output);
-	}
+	addGame(output, RESULTS(L));
 }
 
 void Map::addDraw(std::ostream& output)
 {
-	++D_;
-	output << "Succesfully changed draws for " << getName() << " to "
-		<< getDraws() << "!" << std::endl;
-	if (parent_ != nullptr) {
-		parent_->addDraw(output);
-	}
+	addGame(output, RESULTS(D));
+}
+
+void Map::delWin(std::ostream& output)
+{
+	delGame(output, RESULTS(W));
+}
+
+void Map::delLoss(std::ostream& output)
+{
+	delGame(output, RESULTS(L));
+}
+
+void Map::delDraw(std::ostream& output)
+{
+	delGame(output, RESULTS(D));
 }
 
 std::vector<int> Map::getWLD() const
@@ -127,4 +127,95 @@ std::string Map::getOutput(const std::string::size_type& maplen) const
 	to_return.append(std::to_string(getWinrate()));
 
 	return to_return;
+}
+
+void Map::addGame(std::ostream& output, const int& result)
+{
+	if (result == RESULTS(W)) {
+		++W_;
+		output << "Succesfully changed wins for " << getName() << " to "
+			<< getWins() << "!" << std::endl;
+		if (parent_ != nullptr) {
+			parent_->addWin(output);
+		}
+		return;
+	}
+
+	if (result == RESULTS(L)) {
+		++L_;
+		output << "Succesfully changed losses for " << getName() << " to "
+			<< getLosses() << "!" << std::endl;
+		if (parent_ != nullptr) {
+			parent_->addLoss(output);
+		}
+		return;
+	}
+
+	if (result == RESULTS(D)) {
+		++D_;
+		output << "Succesfully changed draws for " << getName() << " to "
+			<< getDraws() << "!" << std::endl;
+		if (parent_ != nullptr) {
+			parent_->addDraw(output);
+		}
+	}
+}
+
+void Map::delGame(std::ostream& output, const int& result)
+{
+	/*
+	* TODO:
+	* 
+	* Suostuu aloittamaan poistamisen, vaikka 'vanhemmilla' ei olisi tarpeeksi
+	* kyseisiä pelejä. Tämän tilan ei pitäisi olla mahdollinen, mutta joku tarkastus
+	* olisi varmasti hyvä
+	* 
+	*/
+
+	if (result == RESULTS(W)) {
+		if (W_ <= 0) {
+			output << "Error! " << getName() << " has too few wins!"
+				<< std::endl;
+			return;
+		}
+
+		--W_;
+		output << "Succesfully changed wins for " << getName() << " to "
+			<< getWins() << "!" << std::endl;
+		if (parent_ != nullptr) {
+			parent_->delWin(output);
+		}
+		return;
+	}
+
+	if (result == RESULTS(L)) {
+		if (L_ <= 0) {
+			output << "Error! " << getName() << " has too few losses!"
+				<< std::endl;
+			return;
+		}
+
+		--L_;
+		output << "Succesfully changed losses for " << getName() << " to "
+			<< getLosses() << "!" << std::endl;
+		if (parent_ != nullptr) {
+			parent_->delLoss(output);
+		}
+		return;
+	}
+
+	if (result == RESULTS(D)) {
+		if (D_ <= 0) {
+			output << "Error! " << getName() << " has too few draws!"
+				<< std::endl;
+			return;
+		}
+
+		--D_;
+		output << "Succesfully changed draws for " << getName() << " to "
+			<< getDraws() << "!" << std::endl;
+		if (parent_ != nullptr) {
+			parent_->delDraw(output);
+		}
+	}
 }

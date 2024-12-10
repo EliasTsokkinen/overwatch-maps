@@ -185,6 +185,11 @@ std::string Utils::removeSpecials(const std::string& input)
 	return output;
 }
 
+std::string Utils::format(const std::string& input)
+{
+	return removeSpecials(in_lower(input));
+}
+
 std::string Utils::lookForAlias(const std::string& input)
 {
 	std::map<std::string, std::vector<std::string>> aliases = {

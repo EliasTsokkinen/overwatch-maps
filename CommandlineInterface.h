@@ -40,6 +40,15 @@ private:
 			{"Mapname"}, &MapController::addDraw},
 		{PARAMS, {"addloss", "loss", "addl", "al", "l"},
 			{"Mapname"}, &MapController::addLoss},
+		{PARAMS, {"delwin", "delw", "dwin", "dw",
+				  "deletewin", "deletew"}, {"Mapname"},
+				  &MapController::delWin},
+		{PARAMS, {"delloss", "dell", "dloss", "dl",
+				  "deleteloss", "deletel"}, {"Mapname"},
+				  &MapController::delLoss},
+		{PARAMS, {"deldraw", "deld", "ddraw", "dd",
+				  "deletedraw", "deleted"}, {"Mapname"},
+				  &MapController::delDraw},
 		{NOPARAMS, {"printall", "printa", "pa", "pall",
 			"print", "p"}, {}, &MapController::printAll},
 		{NOPARAMS, {"printtotal", "printt", "pt", "ptotal",
@@ -53,7 +62,7 @@ private:
 			"pmts","pmaptypes", "pmapts"},
 			{}, &MapController::printMapTypes},
 		{HELP, {"help", "h", "-h"}, {},nullptr},
-		{NOPARAMS, {"save", "s"}, {},&MapController::save},
+		{NOPARAMS, {"save", "s"}, {},&MapController::manualSave},
 		{PARAMS, {"export", "exp", "csv", "ex"}, {"file name"},
 			&MapController::exportToCsv},
 		{PREFERENCES, {"preferences", "preference", "pref", "settings",
@@ -69,6 +78,12 @@ private:
 		" as it's map type and the total.\n"
 		" - adddraw \"map name\"\n    Adds a draw to the given map as well"
 		" as it's map type and the total.\n"
+		" - deletewin \"map name\"\n    Deletes a win from the given map as"
+		" well as it's map type and the total.\n"
+		" - deleteloss \"map name\"\n    Deletes a loss from the given map as"
+		" well as it's map type and the total.\n"
+		" - deletedraw \"map name\"\n    Deletes a draw from the given map as"
+		" well as it's map type and the total.\n"
 		" - printall\n    Prints all stats.\n"
 		" - printtotal\n    Prints stats for total.\n"
 		" - printmap \"map name\"\n    Prints stats for single map.\n"
@@ -87,7 +102,7 @@ private:
 		"bring up this message.\n"
 		"\nMade with C++ and STL.\n"
 		"If you have any questions, problems or suggestions, feel free to "
-		"message me on Twitter/X or Bluesky: @realeliju";
+		"message me on Twitter/X @realeliju or Discord: eliju";
 
 
 	CInfo* findComm(std::string& commName);

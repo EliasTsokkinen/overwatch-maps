@@ -65,5 +65,8 @@ namespace Utils {
 	*/
 	std::string removeSpecials(const std::string& input);
 
+	// Yhdist‰‰ removeSpecials ja in_lower
+	std::string format(const std::string& input);
+
 	std::string lookForAlias(const std::string& input);
 }

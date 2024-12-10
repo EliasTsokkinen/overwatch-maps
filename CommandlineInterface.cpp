@@ -128,7 +128,7 @@ void Cli::preferences(MapController& mapController)
 			"and \"cancel\" to discard any changes.\n> ";
 
 		std::getline(std::cin, response);
-		response = Utils::removeSpecials(Utils::in_lower(response));
+		response = Utils::format(response);
 
 		for (int a = 0; a < i; ++a) {
 			if (response == std::to_string(a + 1)) {
@@ -143,7 +143,7 @@ void Cli::preferences(MapController& mapController)
 		}
 	}
 
-	if (response == "save") {
+	if (response == "save" or response == "s") {
 		mapController.updatePreferences(prefs);
 		std::cout << "Preferences saved." << std::endl;
 		return;
