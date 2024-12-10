@@ -43,6 +43,18 @@ public:
 	void addDraw(const std::vector<std::string>& params,
 		std::ostream& output);
 
+	// Poistaa voiton kartalta ja sen vanhemmilta
+	void delWin(const std::vector<std::string>& params,
+		std::ostream& output);
+
+	// Poistaa häviön kartalta ja sen vanhemmilta
+	void delLoss(const std::vector<std::string>& params,
+		std::ostream& output);
+
+	// Poistaa tasapalein kartalta ja sen vanhemmilta
+	void delDraw(const std::vector<std::string>& params,
+		std::ostream& output);
+
 	// Tulostaa kaiken
 	void printAll(const std::vector<std::string>& params,
 		std::ostream& output);
@@ -63,9 +75,13 @@ public:
 	void printMapTypes(const std::vector<std::string>& params,
 		std::ostream& output);
 
+	// Tallentaa, manuaalisesti käyttäjän haluama (tulostaa ilmoituksen)
+	void manualSave(const std::vector<std::string>& params,
+		std::ostream& output);
+
 	// Tallentaa
 	void save(const std::vector<std::string>& params,
-		std::ostream& output);
+		std::ostream& output, const bool autosave=true);
 
 	// Vie .csv tiedostona
 	void exportToCsv(const std::vector<std::string>& params,
@@ -80,9 +96,7 @@ public:
 		std::vector<std::pair<std::string, std::string>> newprefs);
 
 private:
-	Map* findMap(const std::string& mapname) const;
-
-	Map* findMapType(const std::string& maptypename) const;
+	Map* findMap(const std::string& mapname, const bool maptype=false) const;
 
 	void printMapNotFound(const std::string& mapname,
 		std::ostream& output) const;

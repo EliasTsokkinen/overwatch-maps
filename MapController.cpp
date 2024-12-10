@@ -74,6 +74,51 @@ void MapController::addDraw(const std::vector<std::string>& params,
 	else addUnsavedTag();
 }
 
+void MapController::delWin(const std::vector<std::string>& params, std::ostream& output)
+{
+	Map* target = findMap(params.at(0));
+	if (target == nullptr) {
+		printMapNotFound(params.at(0), output);
+		return;
+	}
+	target->delWin(output);
+	if (stateSaveOnEdit()) {
+		save({}, output);
+		removeUnsavedTag();
+	}
+	else addUnsavedTag();
+}
+
+void MapController::delLoss(const std::vector<std::string>& params, std::ostream& output)
+{
+	Map* target = findMap(params.at(0));
+	if (target == nullptr) {
+		printMapNotFound(params.at(0), output);
+		return;
+	}
+	target->delLoss(output);
+	if (stateSaveOnEdit()) {
+		save({}, output);
+		removeUnsavedTag();
+	}
+	else addUnsavedTag();
+}
+
+void MapController::delDraw(const std::vector<std::string>& params, std::ostream& output)
+{
+	Map* target = findMap(params.at(0));
+	if (target == nullptr) {
+		printMapNotFound(params.at(0), output);
+		return;
+	}
+	target->delDraw(output);
+	if (stateSaveOnEdit()) {
+		save({}, output);
+		removeUnsavedTag();
+	}
+	else addUnsavedTag();
+}
+
 void MapController::printAll(const std::vector<std::string>& params,
 	std::ostream& output)
 {
@@ -133,7 +178,7 @@ void MapController::printMap(const std::vector<std::string>& params,
 void MapController::printMapType(const std::vector<std::string>& params,
 	std::ostream& output)
 {
-	Map* target = findMapType(params.at(0));
+	Map* target = findMap(params.at(0), true);
 	if (target == nullptr) {
 		printMapTypeNotFound(params.at(0), output);
 		return;
@@ -172,11 +217,18 @@ void MapController::printMapTypes(const std::vector<std::string>& params,
 	}
 }
 
+void MapController::manualSave(const std::vector<std::string>& params, std::ostream& output)
+{
+	save(params, output, false);
+}
+
 void MapController::save(const std::vector<std::string>& params,
-	std::ostream& output)
+	std::ostream& output, const bool autosave)
 {
 	if (File::save(file_name_, generateFileData())) {
-		output << "Saved!" << std::endl;
+		if (not autosave) {
+			output << "Saved!" << std::endl;
+		}
 	}
 	else {
 		output << "Error in saving :(\n"
@@ -223,29 +275,25 @@ void MapController::updatePreferences(std::vector<std::pair<std::string, std::st
 	addUnsavedTag();
 }
 
-Map* MapController::findMap(const std::string& mapname) const
+Map* MapController::findMap(const std::string& mapname, const bool maptype) const
 {
-	std::string formal_name = Utils::lookForAlias(mapname);
-	std::string input = Utils::removeSpecials(Utils::in_lower(formal_name));
+	std::string formal_name = Utils::format(Utils::lookForAlias(mapname));
 
-	for (std::shared_ptr<Map> map : maps_) {
-		if (Utils::removeSpecials(Utils::in_lower(map->getName())) == input) {
-			return &(*map);
+	if (not maptype) {
+		for (std::shared_ptr<Map> map : maps_) {
+			if (Utils::format(map->getName()) == formal_name) {
+				return &(*map);
+			}
 		}
+		return nullptr;
 	}
-	return nullptr;
-}
-
-Map* MapController::findMapType(const std::string& maptypename) const
-{
-	std::string formal_name = Utils::lookForAlias(maptypename);
-	std::string input = Utils::removeSpecials(Utils::in_lower(formal_name));
 
 	for (std::shared_ptr<Map> mapt : maptypes_) {
-		if (Utils::removeSpecials(Utils::in_lower(mapt->getName())) == input) {
+		if (Utils::format(mapt->getName()) == formal_name) {
 			return &(*mapt);
 		}
 	}
+
 	return nullptr;
 }
 
