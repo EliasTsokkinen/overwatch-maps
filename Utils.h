@@ -34,7 +34,8 @@ namespace Utils {
 	// Erottelee merkkijonot
 	std::vector<std::string> split(const std::string& to_split,
 		const char splitter = ';',
-		const char compound = '"');
+		const char compound = '"',
+		const bool returnCompoundChars = false);
 
 	// Palauttaa merkkijonon pienillä kirjaimilla
 	std::string in_lower(const std::string& str);
@@ -47,6 +48,9 @@ namespace Utils {
 
 	// Palauttaa nykyisen ajan
 	std::time_t getTime();
+
+	// Palauttaa ajan merkkijonona
+	std::string getTimeString();
 
 	// Palauttaa output tyylisistä stringeistä pisimmän mapnimen
 	// ">Watchpoint: Gibraltar:< x/y/z W-%: ab"

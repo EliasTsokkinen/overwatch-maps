@@ -10,7 +10,7 @@ const std::string INFORMATION =
 "Overwatch map winrate calculator by Eliju\n"
 "Twitter/X: @realeliju\n"
 "Discord: eliju\n"
-"Version B2.2.3\n"
+"Version B.2.2.4\n"
 "Made for Overwatch version 2.13.0";
 
 const std::string MAIN_FILE_NAME = ".data.owmd";
@@ -33,7 +33,7 @@ int main() {
 	}
 
 	Cli cli;
-	while (cli.excec(mapController));
+	while (cli.exec(mapController));
 
 	return 0;
 }

@@ -14,6 +14,7 @@ struct fileData {
 	std::vector<std::shared_ptr<Map>> maps_;
 	std::vector<std::pair<std::string, std::string>> meta_;
 	std::vector<std::pair<std::string, std::string>> pref_;
+	std::vector<std::string> history_;
 };
 
 namespace File {

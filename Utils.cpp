@@ -70,21 +70,37 @@ Map* Utils::getMapType(const std::string& maptype_name,
 
 std::vector<std::string> Utils::split(const std::string& to_split,
 	const char splitter,
-	const char compound)
+	const char compound,
+	const bool returnCompoundChars)
 {
 	std::vector<std::string> to_return = { "" };
 	bool in_compound = false;
+
 	for (char c : to_split) {
-		if (c == compound) {
+
+		if (c == compound) { // Jos yhdyssanamerkki
+			// Vaihdetaan ollaanko yhdyssanassa vai ei
 			in_compound = not in_compound;
+			
+			
+			if (returnCompoundChars) {
+				// Jos palautetaan myös yhdyssanamerkit lisätään
+				to_return.back().push_back(c);
+			}
+
+			continue;
 		}
-		else if (c == splitter && not in_compound) {
+		
+		// Jos erotin eikä olla yhdyssanassa lisätään uusi alkio / "sana"
+		if (c == splitter && not in_compound) {
 			to_return.push_back("");
+			continue;
 		}
-		else {
-			to_return.back().push_back(c);
-		}
+
+		to_return.back().push_back(c);
 	}
+
+
 	return to_return;
 }
 
@@ -149,6 +165,12 @@ std::time_t Utils::getTime()
 {
 	auto now = std::chrono::system_clock::now();
 	return std::chrono::system_clock::to_time_t(now);
+}
+
+std::string Utils::getTimeString()
+{
+	auto now = std::chrono::system_clock::now();
+	return std::to_string(std::chrono::system_clock::to_time_t(now));
 }
 
 std::string::size_type Utils::lengthOfLongestMapName(

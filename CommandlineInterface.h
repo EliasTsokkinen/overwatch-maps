@@ -8,9 +8,9 @@
 const std::string PROMPT = "> ";
 
 enum COMMAND_TYPES {
-	EXIT, PARAMS, NOPARAMS, OPTPARAMS, HELP, PREFERENCES
+	EXIT, PARAMS, NOPARAMS, OPTPARAMS, HELP, PREFERENCES, PREVCOMM
 };
-// OPTPARAMS ei enää käytössä
+// OPTPARAMS EI KÄYTÖSSÄ
 
 
 using Func = void (MapController::*)(const std::vector<std::string>& params,
@@ -29,7 +29,7 @@ class Cli
 public:
 	Cli();
 
-	bool excec(MapController& mapController);
+	bool exec(MapController& mapController);
 
 private:
 	std::vector<CInfo> comms_ = {
@@ -61,12 +61,17 @@ private:
 		{NOPARAMS, {"printmaptypes", "printmampts", "printmts",
 			"pmts","pmaptypes", "pmapts"},
 			{}, &MapController::printMapTypes},
+		{NOPARAMS, {"history", "hist", "hst", "hs", "his"},
+			{}, &MapController::history},
 		{HELP, {"help", "h", "-h"}, {},nullptr},
 		{NOPARAMS, {"save", "s"}, {},&MapController::manualSave},
 		{PARAMS, {"export", "exp", "csv", "ex"}, {"file name"},
 			&MapController::exportToCsv},
 		{PREFERENCES, {"preferences", "preference", "pref", "settings",
-			"options", "o"}, {}, nullptr}
+			"options", "o"}, {}, nullptr},
+		{PREVCOMM, {"^", "previouscommand", "prevcommand", "pcommand",
+			"previouscomm", "prevcomm", "pcomm", "previousc", "prevc", "pc"},
+			{"optional n"}, nullptr}
 	};
 
 	const std::string HELP_ = "AVAILABLE COMMANDS:\n"
@@ -104,6 +109,8 @@ private:
 		"If you have any questions, problems or suggestions, feel free to "
 		"message me on Twitter/X @realeliju or Discord: eliju";
 
+	bool command(MapController& mapController, 
+		std::vector<std::string> input);
 
 	CInfo* findComm(std::string& commName);
 
@@ -114,4 +121,7 @@ private:
 	void nextOptionInPreference(
 		std::vector<std::pair<std::string, std::string>>& pref,
 		const int& pos);
+
+	bool previousCommand(MapController& mapController,
+		const std::vector<std::string>& input);
 };
