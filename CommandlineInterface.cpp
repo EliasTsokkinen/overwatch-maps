@@ -5,7 +5,7 @@ Cli::Cli()
 {
 }
 
-bool Cli::excec(MapController& mapController)
+bool Cli::exec(MapController& mapController)
 {
 	std::string row;
 	std::cout << std::endl << std::endl;
@@ -13,7 +13,13 @@ bool Cli::excec(MapController& mapController)
 	std::getline(std::cin, row);
 
 	std::vector<std::string> input = Utils::split(row, ' ');
+	
+	return command(mapController, input);
+}
 
+bool Cli::command(MapController& mapController, 
+	std::vector<std::string> input)
+{
 	if (input.empty() or input.at(0) == "") {
 		return true;
 	}
@@ -32,6 +38,10 @@ bool Cli::excec(MapController& mapController)
 	if (comm->ct_ == COMMAND_TYPES(HELP)) {
 		std::cout << HELP_ << std::endl;
 		return true;
+	}
+
+	if (comm->ct_ == COMMAND_TYPES(PREVCOMM)) {
+		std::cout << "Not implemented yet." << std::endl;
 	}
 
 	if (comm->params.size() != input.size()) {

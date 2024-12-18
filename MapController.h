@@ -12,12 +12,14 @@ const std::string::size_type NUMBER_OF_PREF = 1;
 
 const std::vector<std::pair<std::string, std::string>> DEFAULT_PREFERENCES = {
 	{"autoSaveOnEdit", "true"},
-	{"autoSaveOnChangingPreferences", "true"}
+	{"autoSaveOnChangingPreferences", "true"},
+	{"numberOfCommandsSavedInHistory", "10"}
 };
 
 const std::map<std::string, std::vector<std::string>> PREFERENCE_OPTIONS = {
 	{"autoSaveOnEdit", {"true", "false"}},
-	{"autoSaveOnChangingPreferences", {"true", "false"}}
+	{"autoSaveOnChangingPreferences", {"true", "false"}},
+	{"numberOfCommandsSavedInHistory", {"0", "1", "3", "5", "10", "20", "25", "50", "100"}}
 };
 
 class MapController
@@ -87,6 +89,13 @@ public:
 	void exportToCsv(const std::vector<std::string>& params,
 		std::ostream& output);
 
+	// Tulostaa muokkaushistorian
+	void history(const std::vector<std::string>& params,
+		std::ostream& output);
+
+	// Palauttaa historiaan tallennetun n.:n komennon
+	std::string previousCommand(const int& n) const;
+
 	// Tarkistaa, onko tallentamattomia tietoja
 	bool hasUnsavedChanges() const;
 
@@ -96,6 +105,16 @@ public:
 		std::vector<std::pair<std::string, std::string>> newprefs);
 
 private:
+	std::string file_name_;
+	std::shared_ptr<Map> total_ = nullptr;
+	std::vector<std::shared_ptr<Map>> maptypes_ = { nullptr };
+	std::vector<std::shared_ptr<Map>> maps_ = { nullptr };
+	std::vector<std::pair<std::string, std::string>> meta_;
+	std::vector<std::pair<std::string, std::string>> pref_;
+	std::vector<std::string> history_;
+
+	bool unsavedChanges_ = false;
+
 	Map* findMap(const std::string& mapname, const bool maptype=false) const;
 
 	void printMapNotFound(const std::string& mapname,
@@ -125,18 +144,16 @@ private:
 	// Merkkaa tallennetuksi
 	void removeUnsavedTag();
 
+	// Lis‰‰ historiaan uusimman komennon
+	void addToHistory(const std::string& command);
+
+	void checkAndAutoSave();
+
 	void updatePref();
 
-	std::string file_name_;
-	std::shared_ptr<Map> total_ = nullptr;
-	std::vector<std::shared_ptr<Map>> maptypes_ = { nullptr };
-	std::vector<std::shared_ptr<Map>> maps_ = { nullptr };
-	std::vector<std::pair<std::string, std::string>> meta_;
-	std::vector<std::pair<std::string, std::string>> pref_;
+	bool stateSaveOnEdit() const;
 
-	bool unsavedChanges_ = false;
+	bool stateSaveOnPrefEdit() const;
 
-	bool stateSaveOnEdit();
-
-	bool stateSaveOnPrefEdit();
+	int numberToKeepInHistory() const;
 };

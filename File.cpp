@@ -59,27 +59,33 @@ fileData File::readFile(const std::string& file_name)
 	std::string row;
 	std::vector<std::string> sr;
 	while (std::getline(file, row) && row != "#ovr%meta") {
-		sr = Utils::split(row, '%');
+		sr = Utils::split(row, '%', '"', true);
 		// Jos löytyy virheellinen rivi
 		if (row.size() == 0 or sr.size() != 2) {
 			data.meta_.push_back({ "#red", "fail" });
 			return data;
 		}
 		
-		// Jos kyseessä muu meta kuin asetus
-		if (sr.at(0) != "#prf") {
+		// Jos kyseessä muu meta kuin asetus tai historia
+		if (sr.at(0) != "#prf" and sr.at(0) != "#hst") {
 			data.meta_.push_back({ sr.at(0), sr.at(1)});
 			continue;
 		}
-		// Eli kyseessä on asetus
-		std::vector<std::string> sp = Utils::split(sr.at(1), ':');
 
-		// Virheellinen
-		if (sp.size() != 2) {
-			data.meta_.push_back({ "#red", "fail" });
-			return data;
+		// Jos kyseessä on asetus:
+		if (sr.at(0) == "#prf") {
+			std::vector<std::string> sp = Utils::split(sr.at(1), ':');
+			// Virheellinen
+			if (sp.size() != 2) {
+				data.meta_.push_back({ "#red", "fail" });
+				return data;
+			}
+			data.pref_.push_back({ sp.at(0),sp.at(1) });
+			continue;
 		}
-		data.pref_.push_back({ sp.at(0),sp.at(1) });
+		
+		// Eli kyseessä on historia
+		data.history_.push_back(sr.at(1));
 	}
 
 	int maptypes = Utils::getNumberOfMapTypes(data.meta_);
@@ -171,12 +177,18 @@ bool File::save(const std::string& file_name, const fileData& data)
 			continue;
 		}
 
+		// Tallennetaan muodossa [meta]%[arvo]
 		file << meta.first << "%" << meta.second << std::endl;
 	}
 
 	// Tallenetaan asetukset:
 	for (auto pref : data.pref_) {
 		file << "#prf%" << pref.first << ":" << pref.second << std::endl;
+	}
+
+	// Tallennetaan historia
+	for (auto history : data.history_) {
+		file << "#hst%" << history << std::endl;
 	}
 
 	// Tieto metan loppumisesta
