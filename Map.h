@@ -27,13 +27,15 @@ public:
 	int getLosses() const;
 	int getDraws() const;
 	int getGames() const;
+	int WLDLength(const bool& include_dashes = true) const;
 	std::string getName() const;
 	Map* getMapt() const;
 	std::vector<Map*> getChildren() const;
 
 	double getWinrate() const;
 
-	std::string getOutput(const std::string::size_type& maplen) const;
+	std::string getOutput(const std::string::size_type& maplen,
+		const std::string::size_type& wldlen) const;
 
 private:
 	Map* parent_ = nullptr;

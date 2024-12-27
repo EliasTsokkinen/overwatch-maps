@@ -36,7 +36,7 @@ void MapController::addWin(const std::vector<std::string>& params,
 		return;
 	}
 	target->addWin(output);
-	addToHistory("addWin \"" + params.at(0) + "\"");
+	addToHistory("addWin \"" + target->getName() + "\"");
 	checkAndAutoSave();
 }
 
@@ -49,7 +49,7 @@ void MapController::addLoss(const std::vector<std::string>& params,
 		return;
 	}
 	target->addLoss(output);
-	addToHistory("addLoss \"" + params.at(0) + "\"");
+	addToHistory("addLoss \"" + target->getName() + "\"");
 	checkAndAutoSave();
 }
 
@@ -62,7 +62,7 @@ void MapController::addDraw(const std::vector<std::string>& params,
 		return;
 	}
 	target->addDraw(output);
-	addToHistory("addDraw \"" + params.at(0) + "\"");
+	addToHistory("addDraw \"" + target->getName() + "\"");
 	checkAndAutoSave();
 }
 
@@ -74,7 +74,7 @@ void MapController::delWin(const std::vector<std::string>& params, std::ostream&
 		return;
 	}
 	target->delWin(output);
-	addToHistory("delWin \"" + params.at(0) + "\"");
+	addToHistory("delWin \"" + target->getName() + "\"");
 	checkAndAutoSave();
 }
 
@@ -86,7 +86,7 @@ void MapController::delLoss(const std::vector<std::string>& params, std::ostream
 		return;
 	}
 	target->delLoss(output);
-	addToHistory("delLoss \"" + params.at(0) + "\"");
+	addToHistory("delLoss \"" + target->getName() + "\"");
 	checkAndAutoSave();
 }
 
@@ -98,21 +98,20 @@ void MapController::delDraw(const std::vector<std::string>& params, std::ostream
 		return;
 	}
 	target->delDraw(output);
-	addToHistory("delDraw \"" + params.at(0) + "\"");
+	addToHistory("delDraw \"" + target->getName() + "\"");
 	checkAndAutoSave();
 }
 
 void MapController::printAll(const std::vector<std::string>& params,
 	std::ostream& output)
 {
-	std::vector<std::set<std::string>> alloutputs 
-		= { outputTotal(), outputMapTypes(), outputMaps() };
+	int longest = longestMapName();
+	int longest_wld = longestWLD();
 
-	std::string::size_type longest =
-		Utils::lengthOfLongestMapName(alloutputs);
-
-	alloutputs =
-	{ outputTotal(longest), outputMapTypes(longest), outputMaps(longest) };
+	std::vector<std::set<std::string>> alloutputs =
+	{ outputTotal(longest, longest_wld),
+		outputMapTypes(longest, longest_wld),
+		outputMaps(longest, longest_wld) };
 
 	// total
 	for (std::string line : alloutputs.at(0)) {
@@ -139,7 +138,8 @@ void MapController::printAll(const std::vector<std::string>& params,
 void MapController::printTotal(const std::vector<std::string>& params,
 	std::ostream& output)
 {
-	for (auto op : outputTotal()) {
+	for (auto op : outputTotal(longestMapName("total"),
+							   longestWLD("total"))) {
 		output << op << std::endl;
 	}
 	addToHistory("printTotal");
@@ -155,10 +155,12 @@ void MapController::printMap(const std::vector<std::string>& params,
 		return;
 	}
 
-	for (auto op : outputMap(target)) {
+	for (auto op : outputMap(target,
+				   longestMapName(params.at(0)),
+				   longestWLD(params.at(0)))) {
 		output << op << std::endl;
 	}
-	addToHistory("printMap \"" + params.at(0) + "\"");
+	addToHistory("printMap \"" + target->getName() + "\"");
 }
 
 void MapController::printMapType(const std::vector<std::string>& params,
@@ -170,14 +172,16 @@ void MapController::printMapType(const std::vector<std::string>& params,
 		return;
 	}
 
-	std::vector<std::set<std::string>> alloutputs
-		= { outputMap(target), outputChildren(target) };
 
 	std::string::size_type longest =
-		Utils::lengthOfLongestMapName(alloutputs);
+		longestMapName(params.at(0));
 
-	alloutputs = { outputMap(target, longest),
-		outputChildren(target, longest) };
+	std::string::size_type longest_wld =
+		longestWLD(params.at(0));
+
+	std::vector<std::set<std::string>> alloutputs 
+		= { outputMap(target, longest, longest_wld),
+		outputChildren(target, longest, longest_wld) };
 
 	// itse maptype
 	for (std::string line : alloutputs.at(0)) {
@@ -191,16 +195,19 @@ void MapController::printMapType(const std::vector<std::string>& params,
 		output << line << std::endl;
 	}
 
-	addToHistory("printMapType \"" + params.at(0) + "\"");
+	addToHistory("printMapType \"" + target->getName() + "\"");
 }
 
 void MapController::printMapTypes(const std::vector<std::string>& params,
 	std::ostream& output)
 {
 	std::string::size_type longest =
-		Utils::lengthOfLongestMapName({ outputMapTypes() });
+		longestMapName("maptypes");
 
-	for (std::string line : outputMapTypes(longest)) {
+	std::string::size_type longest_wld =
+		longestWLD("maptypes");
+
+	for (std::string line : outputMapTypes(longest, longest_wld)) {
 		output << line << std::endl;
 	}
 
@@ -249,13 +256,51 @@ void MapController::exportToCsv(const std::vector<std::string>& params,
 void MapController::history(const std::vector<std::string>& params, std::ostream& output)
 {
 	int i = 1;
+
+	int chars_in_longest_number = 0;
+	for (char c : std::to_string(history_.size())) {
+		chars_in_longest_number++;
+	}
+
+	int chars_in_longest_action = 0;
+	for (std::string line : history_) {
+		std::vector<std::string> split = Utils::split(line, '?');
+		if (chars_in_longest_action < split.at(0).size()) {
+			chars_in_longest_action = split.at(0).size();
+		}
+	}
+
 	for (std::string line : history_) {
 
 		std::vector<std::string> split = Utils::split(line, '?');
 		std::string action = split.at(0);
 		std::string time = split.at(1);
 
-		output << i << ". " << action << "   (" << time << ")" << std::endl;
+		std::string start;
+
+		// Numero
+		start.append(std::to_string(i) + ".");
+
+		// Välilyöntejä, jotta komennot jäsentyvät samalle kohtaa riviä
+		while (start.size() < chars_in_longest_number 
+			+ 1 // koska piste
+			+ paddingInHistoryAfterNumber()) {
+			start.append(" ");
+		}
+
+		// Komento
+		start.append(action);
+
+		// Välilyöntejä, jotta timestamp osuu samalle kohtaa riviä
+		while (start.size() < chars_in_longest_number
+			+ chars_in_longest_action
+			+ 1 //koska piste
+			+ paddingInHistoryAfterNumber()
+			+ paddingInHistoryAfterCommand()) {
+			start.append(" ");
+		}
+
+		output << start << "(" << time << ")" << std::endl;
 		++i;
 	}
 	addToHistory("history");
@@ -328,44 +373,132 @@ void MapController::printMapTypeNotFound(const std::string& mapname,
 }
 
 std::set<std::string> MapController::outputMaps(
-	const std::string::size_type& maplen) const
+	const std::string::size_type& maplen,
+	const std::string::size_type& wldlen) const
 {
 	std::set<std::string> set;
 	for (std::shared_ptr<Map> map : maps_) {
-		set.insert(map->getOutput(maplen));
+		set.insert(map->getOutput(maplen + paddingAfterMapName(), wldlen + paddingAfterWLD()));
 	}
 	return set;
 }
 
 std::set<std::string> MapController::outputMapTypes(
-	const std::string::size_type& maplen) const
+	const std::string::size_type& maplen,
+	const std::string::size_type& wldlen) const
 {
 	std::set<std::string> set;
 	for (std::shared_ptr<Map> maptype : maptypes_) {
-		set.insert(maptype->getOutput(maplen));
+		set.insert(maptype->getOutput(maplen + paddingAfterMapName(), wldlen + paddingAfterWLD()));
 	}
 	return set;
 }
 
 std::set<std::string> MapController::outputTotal(
-	const std::string::size_type& maplen) const
+	const std::string::size_type& maplen,
+	const std::string::size_type& wldlen) const
 {
-	return { total_->getOutput(maplen) };
+	return { total_->getOutput(maplen + paddingAfterMapName(), wldlen + paddingAfterWLD()) };
 }
 
 std::set<std::string> MapController::outputMap(const Map* map,
-	const std::string::size_type& maplen) const
+	const std::string::size_type& maplen,
+	const std::string::size_type& wldlen) const
 {
-	return { map->getOutput(maplen) };
+	return { map->getOutput(maplen + paddingAfterMapName(), wldlen + paddingAfterWLD()) };
 }
 
-std::set<std::string> MapController::outputChildren(const Map* map, const std::string::size_type& maplen) const
+std::set<std::string> MapController::outputChildren(const Map* map, 
+	const std::string::size_type& maplen,
+	const std::string::size_type& wldlen) const
 {
 	std::set<std::string> to_return;
 	for (Map* child : map->getChildren()) {
-		to_return.insert(child->getOutput(maplen));
+		to_return.insert(child->getOutput(maplen + paddingAfterMapName(), wldlen + paddingAfterWLD()));
 	}
 	return to_return;
+}
+
+int MapController::longestMapName(const std::string& which_maps)
+{
+	int longest = 0;
+
+	if (which_maps == "maptypes") {
+		for (auto mapt : maptypes_) if (longest < mapt->getName().size())
+			longest = mapt->getName().size();
+		return longest;
+	}
+
+	if (which_maps == "all") {
+
+		longest = total_->getName().size();
+
+		for (auto mapt : maptypes_) if (longest < mapt->getName().size()) 
+			longest = mapt->getName().size();
+
+		for (auto map : maps_) if (longest < map->getName().size())
+			longest = map->getName().size();
+
+		return longest;
+	}
+
+	if (which_maps == "total") {
+		return total_->getName().size();
+	}
+
+	// Kokeillaan maptype
+	Map* mapt = findMap(which_maps, true);
+	if (mapt != nullptr) {
+		for (Map* map : mapt->getChildren()) 
+			if (longest < map->getName().size()) longest = map->getName().size();
+		return longest;
+	}
+
+	// Kokeillaan map
+	Map* map = findMap(which_maps, false);
+	if (map == nullptr) return 0;
+	return map->getName().size();
+}
+
+int MapController::longestWLD(const std::string& which_maps)
+{
+	int longest = 0;
+
+	if (which_maps == "maptypes") {
+		for (auto mapt : maptypes_) if (longest < mapt->WLDLength())
+			longest = mapt->WLDLength();
+		return longest;
+	}
+
+	if (which_maps == "all") {
+
+		longest = total_->WLDLength();
+
+		for (auto mapt : maptypes_) if (longest < mapt->WLDLength())
+			longest = mapt->WLDLength();
+
+		for (auto map : maps_) if (longest < map->WLDLength())
+			longest = map->WLDLength();
+
+		return longest;
+	}
+
+	if (which_maps == "total") {
+		return total_->WLDLength();
+	}
+
+	// Kokeillaan maptype
+	Map* mapt = findMap(which_maps, true);
+	if (mapt != nullptr) {
+		for (Map* map : mapt->getChildren()) 
+			if (longest < map->WLDLength()) longest = map->WLDLength();
+		return longest;
+	}
+
+	// Kokeillaan map
+	Map* map = findMap(which_maps, false);
+	if (map == nullptr) return 0;
+	return map->WLDLength();
 }
 
 fileData MapController::generateFileData()
@@ -464,6 +597,42 @@ int MapController::numberToKeepInHistory() const
 {
 	for (auto pref : pref_)
 		if (pref.first == "numberOfCommandsSavedInHistory") {
+			return std::stoi(pref.second);
+		}
+	return 0;
+}
+
+int MapController::paddingAfterMapName() const
+{
+	for (auto pref : pref_)
+		if (pref.first == "paddingAfterMapName") {
+			return std::stoi(pref.second);
+		}
+	return 0;
+}
+
+int MapController::paddingAfterWLD() const
+{
+	for (auto pref : pref_)
+		if (pref.first == "paddingAfterWLD") {
+			return std::stoi(pref.second);
+		}
+	return 0;
+}
+
+int MapController::paddingInHistoryAfterNumber() const
+{
+	for (auto pref : pref_)
+		if (pref.first == "paddingInHistoryAfterNumber") {
+			return std::stoi(pref.second);
+		}
+	return 0;
+}
+
+int MapController::paddingInHistoryAfterCommand() const
+{
+	for (auto pref : pref_)
+		if (pref.first == "paddingInHistoryAfterCommand") {
 			return std::stoi(pref.second);
 		}
 	return 0;

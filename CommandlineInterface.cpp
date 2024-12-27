@@ -113,7 +113,7 @@ bool Cli::exitFunction(MapController& mapController)
 
 void Cli::preferences(MapController& mapController)
 {
-	std::vector<std::pair<std::string, std::string>> prefs = 
+	std::vector<std::pair<std::string, std::string>> prefs =
 		mapController.getPreferences();
 
 	std::string response = "";
@@ -149,7 +149,10 @@ void Cli::preferences(MapController& mapController)
 		}
 
 		if (change) {
-			nextOptionInPreference(prefs, i);
+			if (PREFERENCE_OPTIONS.at(prefs.at(i).first).at(0) == "%posint") {
+				numericPreferenceChange(prefs, i);
+			}
+			else nextOptionInPreference(prefs, i);
 		}
 	}
 
@@ -167,8 +170,8 @@ void Cli::nextOptionInPreference(
 	const int& a)
 {
 	int pos = 0;
-	while (true) {
-		if (PREFERENCE_OPTIONS.at(prefs.at(a).first).at(pos) 
+	while (pos < 100) {
+		if (PREFERENCE_OPTIONS.at(prefs.at(a).first).at(pos)
 			== prefs.at(a).second) {
 			break;
 		}
@@ -181,4 +184,30 @@ void Cli::nextOptionInPreference(
 	else ++pos;
 
 	prefs.at(a).second = PREFERENCE_OPTIONS.at(prefs.at(a).first).at(pos);
+}
+
+void Cli::numericPreferenceChange(std::vector<std::pair<std::string, std::string>>& prefs, const int& pos)
+{
+	bool acceptable = false;
+	std::string input;
+	while (!acceptable) {
+		std::cout << "\n\n\n";
+		std::cout << "Enter number to set for " + prefs.at(pos).first + ":" << std::endl << PROMPT;
+
+		std::getline(std::cin, input);
+
+		// Positiivinen kokonaisluku
+		if (PREFERENCE_OPTIONS.at(prefs.at(pos).first).at(0) == "%posint") {
+
+			bool is_convertable = true;
+			for (char c : input) {
+				if (!std::isdigit(c)) is_convertable = false;
+			}
+
+			if (is_convertable) acceptable = true;
+			continue;
+		}
+	}
+
+	prefs.at(pos).second = input;
 }

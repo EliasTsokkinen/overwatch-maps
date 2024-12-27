@@ -100,7 +100,8 @@ private:
 		"opened in for example Microsoft Excel or LibeOffice Calc. DOES NOT "
 		"SAVE! Export the current \"working\" copy of data i.e. what is saved "
 		"and what you have entered.\n"
-		" - preferences\n    Change preferences/options.\n\n"
+		" - preferences\n    Change preferences/options.\n"
+		" - history\n    Prints out the latest commands.\n\n"
 		"To pass parameteres composing of multiple words, wrap them in \"\"."
 		"\n  e.g. win \"Blizzard World\".\n"
 		"\nAll commands have multiple aliases, e.g. \"help\" and \"h\" both "
@@ -122,6 +123,6 @@ private:
 		std::vector<std::pair<std::string, std::string>>& pref,
 		const int& pos);
 
-	bool previousCommand(MapController& mapController,
-		const std::vector<std::string>& input);
+	void numericPreferenceChange(std::vector<std::pair<std::string, std::string>>& pref,
+		const int& pos);
 };

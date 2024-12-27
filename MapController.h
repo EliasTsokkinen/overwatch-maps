@@ -13,13 +13,21 @@ const std::string::size_type NUMBER_OF_PREF = 1;
 const std::vector<std::pair<std::string, std::string>> DEFAULT_PREFERENCES = {
 	{"autoSaveOnEdit", "true"},
 	{"autoSaveOnChangingPreferences", "true"},
-	{"numberOfCommandsSavedInHistory", "10"}
+	{"numberOfCommandsSavedInHistory", "20"},
+	{"paddingAfterMapName", "3"},
+	{"paddingAfterWLD", "3"},
+	{"paddingInHistoryAfterNumber", "1"},
+	{"paddingInHistoryAfterCommand", "3"}
 };
 
 const std::map<std::string, std::vector<std::string>> PREFERENCE_OPTIONS = {
 	{"autoSaveOnEdit", {"true", "false"}},
 	{"autoSaveOnChangingPreferences", {"true", "false"}},
-	{"numberOfCommandsSavedInHistory", {"0", "1", "3", "5", "10", "20", "25", "50", "100"}}
+	{"numberOfCommandsSavedInHistory", {"%posint"}},
+	{"paddingAfterMapName", {"%posint"}},
+	{"paddingAfterWLD", {"%posint"}},
+	{"paddingInHistoryAfterNumber", {"%posint"}},
+	{"paddingInHistoryAfterCommand", {"%posint"}}
 };
 
 class MapController
@@ -123,18 +131,27 @@ private:
 	void printMapTypeNotFound(const std::string& mapname,
 		std::ostream& output) const;
 
-	std::set<std::string> outputMaps(const std::string::size_type& maplen = 0)
+	std::set<std::string> outputMaps(const std::string::size_type& maplen = 0,
+		const std::string::size_type& wldlen = 5)
 		const;
-	std::set<std::string> outputMapTypes(const std::string::size_type& maplen = 0)
+	std::set<std::string> outputMapTypes(const std::string::size_type& maplen = 0,
+		const std::string::size_type& wldlen = 5)
 		const;
-	std::set<std::string> outputTotal(const std::string::size_type& maplen = 0)
+	std::set<std::string> outputTotal(const std::string::size_type& maplen = 0,
+		const std::string::size_type& wldlen = 5)
 		const;
 
 	std::set<std::string> outputMap(const Map* map,
-		const std::string::size_type& maplen = 0) const;
+		const std::string::size_type& maplen = 0,
+		const std::string::size_type& wldlen = 5) const;
 
 	std::set<std::string> outputChildren(const Map* map,
-		const std::string::size_type& maplen = 0) const;
+		const std::string::size_type& maplen = 0,
+		const std::string::size_type& wldlen = 5) const;
+
+	int longestMapName(const std::string& which_maps = "all");
+
+	int longestWLD(const std::string& which_maps = "all");
 
 	fileData generateFileData();
 
@@ -156,4 +173,12 @@ private:
 	bool stateSaveOnPrefEdit() const;
 
 	int numberToKeepInHistory() const;
+
+	int paddingAfterMapName() const;
+
+	int paddingAfterWLD() const;
+
+	int paddingInHistoryAfterNumber() const;
+
+	int paddingInHistoryAfterCommand() const;
 };
