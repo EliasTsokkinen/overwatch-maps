@@ -76,6 +76,18 @@ int Map::getGames() const
 	return W_ + L_ + D_;
 }
 
+int Map::WLDLength(const bool& include_dashes) const
+{
+	std::string WLD;
+
+	WLD.append(std::to_string(getWins()));
+	WLD.append(std::to_string(getLosses()));
+	WLD.append(std::to_string(getDraws()));
+
+	if (include_dashes) return WLD.size() + 2;
+	return WLD.size();
+}
+
 std::string Map::getName() const
 {
 	return name_;
@@ -102,12 +114,13 @@ double Map::getWinrate() const
 	return wins / total * 100;
 }
 
-std::string Map::getOutput(const std::string::size_type& maplen) const
+std::string Map::getOutput(const std::string::size_type& maplen,
+	const std::string::size_type& wldlen) const
 {
 	std::string to_return = "";
 
 	to_return.append(getName());
-	to_return.append(": ");
+	to_return.append(":");
 
 	while (to_return.length() <= maplen) {
 		to_return.append(" ");
@@ -119,11 +132,11 @@ std::string Map::getOutput(const std::string::size_type& maplen) const
 	to_return.append("/");
 	to_return.append(std::to_string(getDraws()));
 
-	while (to_return.length() <= maplen + 13) {
+	while (to_return.length() <= maplen + wldlen) {
 		to_return.append(" ");
 	}
 
-	to_return.append(" W-%: ");
+	to_return.append("W-%: ");
 	to_return.append(std::to_string(getWinrate()));
 
 	return to_return;
